@@ -116,7 +116,8 @@ pns19 <- pns19 |>
 # Calculate each stratum size 
 strata_tabel <- pns19 |>  
 summarise(strata_n = n(), .by = stratum) |> 
-  complete(stratum, fill = list(strata_n = 0)) 
+  complete(stratum, fill = list(strata_n = 0)) |> 
+  dplyr::arrange(strata_n)
 
 # Save processed dataset for analysis 
 write.csv(pns19, 
