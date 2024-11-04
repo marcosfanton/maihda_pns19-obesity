@@ -128,8 +128,3 @@ write.csv(pns19,
 write.csv(strata_tabel,
 "data/strata_tabel.csv",
 row.names = FALSE)
-
-
-
-
-
