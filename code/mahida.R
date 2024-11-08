@@ -20,28 +20,34 @@ mA <- lme4::glmer(obesity ~ (1 |stratum),
                   data = pns19, 
                   family = binomial)
 
-# Summary
+# Save and Summary
+
 summary(mA)
 tab_model(mA, show.se = TRUE)
 
+saveRDS(mA, "data/mA.rds")
+
+
 # Predict (log-odds and intercept)
 pns19 <- pns19 |> 
-  mutate(mAxbu = predict(mA, type = "response"),
+  dplyr::mutate(mAxbu = predict(mA, type = "response"),
          mAxb = predict(mA, type = "response", re.form = NA))
 
 # Estimate Logistic model (M2) -- MAIN MODEL #### 
 # Fit 
-mB <- glmer(obesity ~ gender + race + age + income + education + (1 | stratum),
+mB <- lme4::glmer(obesity ~ gender + race + age + income + education + (1 | stratum),
 data = pns19,
 family = binomial)
 
-# Summary
+# Save and Summary
 summary(mB)
 tab_model(mB, show.se = TRUE)
 
+saveRDS(mB, "data/mB.rds")
+
 # Predict
 pns19 <- pns19 |> 
-  mutate(mBmF = predict(mB, type = "response"),
+  dplyr::mutate(mBmF = predict(mB, type = "response"),
          mBxb = predict(mB, type = "response", re.form = NA))
 
 mB_predict <- merTools::predictInterval(mB,  level = 0.95, include.resid.var = FALSE) |> # log scale
@@ -54,9 +60,19 @@ mB_predict <- merTools::predictInterval(mB,  level = 0.95, include.resid.var = F
 
 m2u <- REsim(m2)
 
+# Save new dataset with predictions
+write.csv(pns19, 
+  "data/pns19_maihda.csv", 
+  row.names = FALSE)
+
 # New dataset with predictions#### 
 pns2 <- pns19  |> 
-  left_join(mB_predict, by = "id")  
+  dplyr::left_join(mB_predict, by = "id")  
+
+# Save dataset with obesity means
+write.csv(pns2, 
+  "data/pns19_obesity-mean.csv", 
+  row.names = FALSE)
 
 # Collapse stratas with predictions
  strat_level <- pns2 |> 
@@ -76,13 +92,19 @@ pns2 <- pns19  |>
   ) |> 
   dplyr::summarize(obesity_mean = mean(obesity)*100, .groups = "drop") 
 
+# Save dataset with obesity-strata level
+write.csv(strat_level, 
+  "data/pns19_stratum-obesity.csv", 
+  row.names = FALSE)
+
 # Calculate the Proportional Change in Variance (PCV)
 # Variance matrices
 pcv <- list(mA = mA, mB = mB) |> 
-  map(~ pluck(as_tibble(VarCorr(.)), 4)) |> 
+  purrr::map(~ purrr::pluck(dplyr::as_tibble(lme4::VarCorr(.)), 4)) |> 
     (\(x) ((x$mA - x$mB) / x$mA) * 100)()
+
 
 # Calculate area under the receiver operating characteristic (ROC) curve 
 auc <- c("mAxbu", "mAxb", "mBp_fit", "mBxb") |> 
   set_names() |> 
-  map(~ auc(pns2$obesity, pns2[[.]]))
+  map(~ Metrics::auc(pns2$obesity, pns2[[.]]))
