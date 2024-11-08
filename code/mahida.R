@@ -16,66 +16,47 @@ pns19 <- read.csv("data/pns19.csv", stringsAsFactors = TRUE) |>
 
 # Estimate Logistic model (M1) -- NULL MODEL #### 
 # Fit 
-m1 <- lme4::glmer(obesity ~ (1 |stratum), 
+mA <- lme4::glmer(obesity ~ (1 |stratum), 
                   data = pns19, 
                   family = binomial)
 
 # Summary
-summary(m1)
-tab_model(m1, show.se = TRUE)
+summary(mA)
+tab_model(mA, show.se = TRUE)
 
-# Predict (log-odds)
-pns19$m1xbu <- stats::predict(m1, type = "response")
-
-# Predict (only intercept)
-pns19$m1xb <- predict(m1, type = "response", re.form = NA)
+# Predict (log-odds and intercept)
+pns19 <- pns19 |> 
+  mutate(mAxbu = predict(mA, type = "response"),
+         mAxb = predict(mA, type = "response", re.form = NA))
 
 # Estimate Logistic model (M2) -- MAIN MODEL #### 
 # Fit 
-m2 <- glmer(obesity ~ gender + race + age + income + education + (1 | stratum),
+mB <- glmer(obesity ~ gender + race + age + income + education + (1 | stratum),
 data = pns19,
 family = binomial)
 
 # Summary
-summary(m2)
-tab_model(m2, show.se = TRUE)
+summary(mB)
+tab_model(mB, show.se = TRUE)
 
 # Predict
-m2m <- merTools::predictInterval(m2,  level = 0.95, include.resid.var = FALSE)
+pns19 <- pns19 |> 
+  mutate(mBmF = predict(mB, type = "response"),
+         mBxb = predict(mB, type = "response", re.form = NA))
 
-m2m <- dplyr::mutate(m2m, id = row_number())
-
-pns19$m2mF <- merTools::predict(m2, re.form = NA)
-
-m2m_prob <- predictInterval(m2, level = 0.95, include.resid.var = FALSE,
-type = "probability")
-
-m2m_prob <- dplyr::mutate(m2m_prob, id = row_number())
-
-pns19$m2xb <- predict(m2, re.form = NA, type = "response")
+mB_predict <- merTools::predictInterval(mB,  level = 0.95, include.resid.var = FALSE) |> # log scale
+  dplyr::rename_with(~ paste0("mBp_", .x)) |>  
+  dplyr::bind_cols(
+       merTools::predictInterval(mB, level = 0.95, include.resid.var = FALSE) |> # fixed effects only
+  dplyr::rename_with(~ paste0("mBprob_", .x)) |> 
+  dplyr::mutate(id = row_number()) 
+  )
 
 m2u <- REsim(m2)
 
 # New dataset with predictions#### 
 pns2 <- pns19  |> 
-  left_join(m2m, by = "id") |> 
-  rename(
-    m1Bmfit = fit,
-    m1Bmupr = upr,
-    m1Bmlwr = lwr
-  )  |> 
-  left_join(m2Bm_prob, by = "id") |> 
-  rename(
-    m2Bmfit = fit,
-    m2Bmupr = upr,
-    m2Bmlwr = lwr
-  ) %>%
-  left_join(m2Bm, by = "id") |> 
-  rename(
-    m2BmfitL = fit,
-    m2BmuprL = upr,
-    m2BmlwrL = lwr
-  )
+  left_join(mB_predict, by = "id")  
 
 # Collapse
 stratum_level <- pns2 |> 
@@ -85,17 +66,13 @@ stratum_level <- pns2 |>
             income,
             stratum,
             strata_n,
-            m1Am,
-            m1Bmfit,
-            m1Bmupr,
-            m1Bmlwr,
-            m2Bmfit,
-            m2Bmupr,
-            m2Bmlwr, 
-            m2BmfitL,
-            m2BmuprL,
-            m2BmlwrL,
-            m2BmF
+            mBmfit,
+            mBmupr,
+            mBmlwr, 
+            mBmfitL,
+            mBmuprL,
+            mBmlwrL,
+            mBmF
   ) |> 
   dplyr::summarize(obesity, 
                    mean, 
