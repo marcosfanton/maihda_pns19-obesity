@@ -58,30 +58,31 @@ m2u <- REsim(m2)
 pns2 <- pns19  |> 
   left_join(mB_predict, by = "id")  
 
-# Collapse
-stratum_level <- pns2 |> 
-  dplyr::group_by (age,
-            gender,
+# Collapse stratas with predictions
+ strat_level <- pns2 |> 
+  dplyr::group_by (gender,
             race,
+            age,
             income,
             stratum,
             strata_n,
-            mBmfit,
-            mBmupr,
-            mBmlwr, 
-            mBmfitL,
-            mBmuprL,
-            mBmlwrL,
+            mBp_fit,
+            mBp_upr,
+            mBp_lwr, 
+            mBprob_fit,
+            mBprob_upr,
+            mBprob_lwr,
             mBmF
   ) |> 
-  dplyr::summarize(obesity, 
-                   mean, 
-                   .names = "mean_{col}",
-            .groups = "drop")
+  dplyr::summarize(obesity_mean = mean(obesity)*100, .groups = "drop") 
 
-stratum_level <- stratum_level |> 
-  dplyr::mutate(mean_obesity = mean_obesity*100)  
+# Calculate the Proportional Change in Variance (PCV)
+# Variance matrices
+pcv <- list(mA = mA, mB = mB) |> 
+  map(~ pluck(as_tibble(VarCorr(.)), 4)) |> 
+    (\(x) ((x$mA - x$mB) / x$mA) * 100)()
 
-# Ranking 
-stratum_level <- stratum_level  |> 
-  dplyr::mutate(rank = rank(m2mfit))
+# Calculate area under the receiver operating characteristic (ROC) curve 
+auc <- c("mAxbu", "mAxb", "mBp_fit", "mBxb") |> 
+  set_names() |> 
+  map(~ auc(pns2$obesity, pns2[[.]]))
