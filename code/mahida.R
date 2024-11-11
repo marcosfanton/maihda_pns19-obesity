@@ -11,7 +11,10 @@ library(plotly)
 pns19 <- read.csv("data/pns19.csv", stringsAsFactors = TRUE) |> 
   mutate(
     race = relevel(factor(race), ref = "white"),
-    age = relevel(factor(age), ref = "young"))
+    age = relevel(factor(age), ref = "young"),
+    income = factor(income, levels = c("Ilow", "Imid", "Ihigh")),
+    education = factor(education, levels = c("Elow", "Emid", "Ehigh"))
+  )
 
 
 # Estimate Logistic model (M1) -- NULL MODEL #### 
@@ -51,14 +54,14 @@ pns19 <- pns19 |>
          mBxb = predict(mB, type = "response", re.form = NA))
 
 mB_predict <- merTools::predictInterval(mB,  level = 0.95, include.resid.var = FALSE) |> # log scale
-  dplyr::rename_with(~ paste0("mBp_", .x)) |>  
+  dplyr::rename_with(~ paste0("mB_", .x)) |>  
   dplyr::bind_cols(
-       merTools::predictInterval(mB, level = 0.95, include.resid.var = FALSE) |> # fixed effects only
+       merTools::predictInterval(mB, level = 0.95, include.resid.var = FALSE, type = "probability") |> # fixed effects only
   dplyr::rename_with(~ paste0("mBprob_", .x)) |> 
   dplyr::mutate(id = row_number()) 
   )
 
-m2u <- REsim(m2)
+mBu <- REsim(mB)
 
 # Save new dataset with predictions
 write.csv(pns19, 
@@ -82,9 +85,9 @@ write.csv(pns2,
             income,
             stratum,
             strata_n,
-            mBp_fit,
-            mBp_upr,
-            mBp_lwr, 
+            mB_fit,
+            mB_upr,
+            mB_lwr, 
             mBprob_fit,
             mBprob_upr,
             mBprob_lwr,
