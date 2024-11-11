@@ -100,12 +100,12 @@ strata_levels <- expand.grid(
 )
 # Stratum Levels (all)
 strata_levels <- strata_levels |> 
-  dplyr::mutate(stratum = factor(paste(age, gender, race, income, education, sep = "")))
+  dplyr::mutate(stratum = factor(paste(gender, race, age, income, education, sep = "")))
 
 # Include stratum variable in PNS19 dataset
 pns19 <- pns19 |> 
   dplyr::mutate(
-    stratum = factor(paste(age, gender, race, income, education, sep = ""),
+    stratum = factor(paste(gender, race, age, income, education, sep = ""),
               levels = levels(strata_levels$stratum)),
     id = dplyr::row_number() 
   ) |> 
