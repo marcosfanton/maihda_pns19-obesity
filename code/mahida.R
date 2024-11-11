@@ -83,6 +83,7 @@ write.csv(pns2,
             race,
             age,
             income,
+            education,
             stratum,
             strata_n,
             mB_fit,
@@ -93,7 +94,8 @@ write.csv(pns2,
             mBprob_lwr,
             mBmF
   ) |> 
-  dplyr::summarize(obesity_mean = mean(obesity)*100, .groups = "drop") 
+  dplyr::summarize(obesity_mean = mean(obesity)*100, .groups = "drop") |> 
+  dplyr::mutate(rankprob = rank(mBprob_fit))
 
 # Save dataset with obesity-strata level
 write.csv(strat_level, 
