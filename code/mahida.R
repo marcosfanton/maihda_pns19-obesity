@@ -30,7 +30,6 @@ tab_model(mA, show.se = TRUE)
 
 saveRDS(mA, "data/mA.rds")
 
-
 # Predict (log-odds and intercept)
 pns19 <- pns19 |> 
   dplyr::mutate(mAxbu = predict(mA, type = "response"),
