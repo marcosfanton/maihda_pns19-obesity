@@ -4,8 +4,10 @@ library(here)
 library(scales)
 library(MetBrewer)
 library(showtext)
-library(gganimate)
-library(gt)
+library(sjPlot)
+library(sjmisc)
+library(sjlabelled)
+library(cowplot)
 
 
 # Load models and datasets ####
@@ -14,21 +16,36 @@ strat_level <- read.csv("data/pns19_stratum-obesity.csv", stringsAsFactors = TRU
   
 # Fig.1 Scatterplot (sorted by obesity) ####  
 font_add_google("Raleway", "raleway")
-showtext_auto()
+showtext::showtext_auto()
+showtext::showtext_opts(dpi = 300)
 
 fig1 <- strat_level |> 
   ggplot(aes(y = mBprob_fit, x = rankprob, color = stratum)) +
+  geom_hline(yintercept = 0.2159, color = "black", 
+             linetype = "dashed", alpha = 0.7,
+            size = 0.5) +
   geom_point(size = 1) +
-    geom_errorbar(aes(ymin = mBprob_lwr, ymax = mBprob_upr)) +
-  ylab("Obesidade Predita (%)") +
-  xlab("") +
-  scale_y_continuous(labels = percent_format(scale = 100)) +
+  geom_errorbar(aes(ymin = mBprob_lwr, ymax = mBprob_upr)) +
+  ylab("Obesidade (%)") +
+  xlab("Ranking de Estratos Sociais") +
+  scale_y_continuous(labels = scales::label_percent(scale = 100, suffix = "")) +
     scale_color_manual(values = met.brewer("Peru1", 159)) +
   theme_bw() +
   theme(legend.position = "none",
-        text = element_text(family = "raleway")) 
+        text = element_text(family = "raleway"),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14)
+      )
 
-ggplotly(fig1)
+# Save fig1
+ggsave(
+  filename = "fig/fig1_epibr.png",
+  bg = "white",
+  width = 18,
+  height = 7,
+  dpi = 300,
+  plot = fig1)
+
 
 # Fig. 2 Scatterplot (sorted by social strata) ####  
 strat_level |> 
@@ -73,39 +90,29 @@ top10 |>
   theme(legend.position = "none",
         text = element_text(family = "raleway")) 
 
-# Tabela com os Top-Bottom 10
-# Dictionary
-dicionario <- c(
-  "woman" = "Mulher",
-  "man" = "Homem",
-  "black" = "Preto",
-  "brown" = "Pardo",
-  "white" = "Branco",
-  "Ihigh" = "Renda Alta",
-  "Ilow" = "Renda Baixa",
-  "Imid" = "Renda Média",
-  "Ehigh" = "Educação Alta",
-  "Elow" = "Educação Baixa",
-  "Emid" = "Educação Média",
-  "mid" = "IdadeIntermediária",
-  "old" = "MaisVelho",
-  "young" = "Jovem"
-)
-top10 %>%
-  mutate(stratum = str_replace_all(stratum, dicionario)) %>%
-  # Selecionar as colunas traduzidas para a tabela final
-  select(stratum, obesity_mean) %>%
-  # Criar a tabela com o pacote gt
-  gt() %>%
-  tab_header(
-    title = "Tabela de Estratos e Média de Obesidade",
-    subtitle = "Apresentando as médias de obesidade para cada estrato (em português)"
-  ) %>%
-  cols_label(
-    stratum = "Estrato",
-    obesity_mean = "Média de Obesidade (%)"
-  ) %>%
-  fmt_number(
-    columns = obesity_mean,
-    decimals = 1
-  )
+
+
+
+# Tables ####
+# Table with models 
+tab_model(mA, mB, 
+  p.style = "stars",
+  string.ci = "IC(95%)",
+pred.labels = c("Intercepto",
+"Gênero (Mulher)",
+"Raça (Preta)",
+"Raça (Pardo)",
+"Idade (Tercil2)",
+"Idade (Tercil3)",
+"Renda (Tercil2)",
+"Renda (Tercil3)",
+"Educação (Tercil2)",
+"Educação (Tercil3)"),
+dv.labels = c("Modelo Vazio", "Modelo Ajustado"),
+string.pred = "Coeficiente",
+CSS = list(css.table = '+font-family: Raleway;'))
+
+
+
+
+
