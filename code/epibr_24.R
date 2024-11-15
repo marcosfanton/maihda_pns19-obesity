@@ -104,26 +104,27 @@ ggsave(
 # Recode
 top10 <- top10 |> 
   dplyr::mutate(stratum = recode(stratum,
-    "womanblackmidIlowElow" = "MulherPretaIdade(t2)Renda(t1)Educação(t1)",
-    "womanblackoldIlowEmid" = "MulherPretaIdade(t3)Renda(t1)Educação(t2)",
-    "womanbrownmidIlowElow" = "MulherPardaIdade(t2)Renda(t1)Educação(t1)",
-    "womanblackmidIlowEmid" = "MulherPretaIdade(t2)Renda(t1)Educação(t2)",
-    "womanblackoldIlowElow" = "MulherPretaIdade(t3)Renda(t1)Educação(t1)",
-    "womanbrownmidImidElow" = "MulherPardaIdade(t2)Renda(t2)Educação(t1)",
-    "womanblackoldIhighEmid" = "MulherPretaIdade(t3)Renda(t3)Educação(t2)",
-    "womanblackmidImidElow" = "MulherPretaIdade(t2)Renda(t2)Educação(t1)",
-    "womanblackmidImidEhigh" = "MulherPretaIdade(t2)Renda(t2)Educação(t3)",
-    "manblackmidImidEmid" = "HomemPretoIdade(t2)Renda(t2)Educação(t2)",
-    "womanwhiteyoungIhighEhigh" = "MulherBrancaIdade(t1)Renda(t3)Educação(t3)",
-    "manbrownyoungIlowEmid" = "HomemPardoIdade(t1)Renda(t1)Educação(t2)",
-    "manbrownyoungIlowElow" = "HomemPardoIdade(t1)Renda(t1)Educação(t1)",
-    "womanwhiteyoungImidEhigh" = "MulherBrancaIdade(t1)Renda(t2)Educação(t3)",
-    "womanbrownyoungIhighEhigh" = "MulherPardaIdade(t1)Renda(t3)Educação(t3)",
-    "womanwhitemidIhighEhigh" = "MulherBrancaIdade(t2)Renda(t3)Educação(t3)",
-    "manwhiteyoungIhighEhigh" = "HomemBrancoIdade(t1)Renda(t3)Educação(t3)",
-    "manwhiteyoungIlowElow" = "HomemBrancoIdade(t1)Renda(t1)Educação(t1)",
-    "womanbrownyoungIlowEhigh" = "MulherPardaIdade(t1)Renda(t1)Educação(t3)",
-    "manwhiteyoungIlowEhigh" = "HomemBrancaIdade(t1)Renda(t1)Educação(t3)"
+    "womanblackmidIlowElow" = "Mulher-Preta-Idade(t2)-Renda(t1)-Educação(t1)",
+    "womanbrownmidIlowElow" = "Mulher-Parda-Idade(t2)-Renda(t1)-Educação(t1)",
+    "womanblackoldIlowElow" = "Mulher-Preta-Idade(t3)-Renda(t1)-Educação(t1)",
+    "womanbrownmidImidElow" = "Mulher-Parda-Idade(t2)-Renda(t2)-Educação(t1)",
+    "womanblackoldIhighEmid" = "Mulher-Preta-Idade(t3)-Renda(t3)-Educação(t2)",
+    "womanblackmidImidElow" = "Mulher-Preta-Idade(t2)-Renda(t2)-Educação(t1)",
+    "womanblackmidImidEhigh" = "Mulher-Preta-Idade(t2)-Renda(t2)-Educação(t3)",
+    "manblackmidImidEmid" = "Homem-Preto-Idade(t2)-Renda(t2)-Educação(t2)",
+    "womanwhiteyoungIhighEhigh" = "Mulher-Branca-Idade(t1)-Renda(t3)-Educação(t3)",
+    "manbrownyoungIlowEmid" = "Homem-Pardo-Idade(t1)-Renda(t1)-Educação(t2)",
+    "manbrownyoungIlowElow" = "Homem-Pardo-Idade(t1)-Renda(t1)-Educação(t1)",
+    "womanwhiteyoungImidEhigh" = "Mulher-Branca-Idade(t1)-Renda(t2)-Educação(t3)",
+    "womanbrownyoungIhighEhigh" = "Mulher-Parda-Idade(t1)-Renda(t3)-Educação(t3)",
+    "womanwhitemidIhighEhigh" = "Mulher-Branca-Idade(t2)-Renda(t3)-Educação(t3)",
+    "manwhiteyoungIhighEhigh" = "Homem-Branco-Idade(t1)-Renda(t3)-Educação(t3)",
+    "manwhiteyoungIlowElow" = "Homem-Branco-Idade(t1)-Renda(t1)-Educação(t1)",
+    "womanbrownyoungIlowEhigh" = "Mulher-Parda-Idade(t1)-Renda(t1)-Educação(t3)",
+    "manwhiteyoungIlowEhigh" = "Homem-Branco-Idade(t1)-Renda(t1)-Educação(t3)",
+    "womanblackmidIlowEmid" = "Mulher-Preta-Idade(t2)-Renda(t1)-Educação(t2)",
+    "womanblackoldIlowEmid" = "Mulher-Preta-Idade(t3)-Renda(t1)-Educação(t2)",
+
   ),
               mBprob_lwr = mBprob_lwr*100,
               mBprob_upr = mBprob_upr*100
@@ -217,8 +218,6 @@ tab_bottom10 <- top10 |>
 )
 # Save table
 gtsave(tab_bottom10, "fig/tab_bottom10.png")
-
-
 
 # Tables ####
 # Table with models 
