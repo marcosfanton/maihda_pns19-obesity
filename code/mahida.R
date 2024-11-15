@@ -109,6 +109,6 @@ pcv <- list(mA = mA, mB = mB) |>
 
 
 # Calculate area under the receiver operating characteristic (ROC) curve 
-auc <- c("mAxbu", "mAxb", "mBp_fit", "mBxb") |> 
+auc <- c("mAxbu", "mAxb", "mBprob_fit", "mBxb") |> 
   set_names() |> 
   map(~ Metrics::auc(pns2$obesity, pns2[[.]]))
