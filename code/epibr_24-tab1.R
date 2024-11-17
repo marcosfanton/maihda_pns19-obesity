@@ -69,5 +69,5 @@ tab1 <- table1_data |>
   tab_options(table.font.size = 28)
 
  # Save table
-gtsave(tab1, "fig/tab1.png")
+gtsave(tab1, "fig/tab1_descritivo_epibr.png")
   
