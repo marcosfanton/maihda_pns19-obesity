@@ -16,7 +16,6 @@ pns19 <- read.csv("data/pns19.csv", stringsAsFactors = TRUE) |>
     education = factor(education, levels = c("Elow", "Emid", "Ehigh"))
   )
 
-
 # Estimate Logistic model (M1) -- NULL MODEL #### 
 # Fit 
 mA <- lme4::glmer(obesity ~ (1 |stratum), 
@@ -24,7 +23,6 @@ mA <- lme4::glmer(obesity ~ (1 |stratum),
                   family = binomial)
 
 # Save and Summary
-
 summary(mA)
 tab_model(mA, show.se = TRUE)
 
